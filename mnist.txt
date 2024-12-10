@@ -788,5 +788,5 @@ Epoch 13 loss 0.15856666533447805 valid acc 15/16\
 Epoch 13 loss 0.69539250862074 valid acc 15/16\
 Epoch 13 loss 0.5195395797589136 valid acc 14/16\
 Epoch 13 loss 0.30825112183847825 valid acc 14/16\
-\'e7Epoch 13 loss 0.8694228738752146 valid acc 14/16\
+Epoch 13 loss 0.8694228738752146 valid acc 14/16\
 Epoch 13 loss 0.3069321658639883 valid acc 15/16}

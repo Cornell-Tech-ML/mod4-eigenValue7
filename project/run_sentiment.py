@@ -83,9 +83,9 @@ class CNNSentimentKim(minitorch.Module):
         x3 = minitorch.nn.max(self.conv1(embeddings_new).relu(), 2)
 
         x4 = x1 + x2 + x3
-        x4 = x4.view(x_mid.size // self.feature_map_size, self.feature_map_size)
+        x4 = x4.view(x4.size // self.feature_map_size, self.feature_map_size)
 
-        x = self.linear1(x_4)
+        x = self.linear1(x4)
         x = minitorch.nn.dropout( x, self.dropout, not self.training)
 
         return x.sigmoid().view(x.shape[0])
