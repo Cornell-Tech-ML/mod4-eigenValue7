@@ -15,6 +15,11 @@ class SGD(Optimizer):
         self.lr = lr
 
     def zero_grad(self) -> None:
+        """Resets the gradients of all parameters to zero.
+
+        This method is used to clear the gradients of all parameters before the next backward pass.
+        It is typically called at the beginning of each training iteration.
+        """
         for p in self.parameters:
             if p.value is None:
                 continue
@@ -26,6 +31,11 @@ class SGD(Optimizer):
                     p.value.grad = None
 
     def step(self) -> None:
+        """Performs a single optimization step.
+
+        This method updates the parameters based on their gradients and the learning rate.
+        It is typically called after the gradients have been computed using the `backward` method.
+        """
         for p in self.parameters:
             if p.value is None:
                 continue
