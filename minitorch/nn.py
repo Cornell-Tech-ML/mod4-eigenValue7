@@ -66,7 +66,9 @@ def avgpool2d(input: Tensor, kernel: Tuple[int, int]) -> Tensor:
     kw = kernel[1]
     tiled, new_height, new_width = tile(input, (kh, kw))
     result = tiled.mean(dim=4)
-    result =  result.view(input.shape[0], input.shape[1], int(new_height), int(new_width))
+    result = result.view(
+        input.shape[0], input.shape[1], int(new_height), int(new_width)
+    )
     return result
 
 
