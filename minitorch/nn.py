@@ -65,8 +65,9 @@ def avgpool2d(input: Tensor, kernel: Tuple[int, int]) -> Tensor:
     kh = kernel[0]
     kw = kernel[1]
     tiled, new_height, new_width = tile(input, (kh, kw))
-    result = tiled.mean(dim=-1)
-    return result.view(input.shape[0], input.shape[1], int(new_height), int(new_width))
+    result = tiled.mean(dim=4)
+    result =  result.view(input.shape[0], input.shape[1], int(new_height), int(new_width))
+    return result
 
 
 # - max: Apply max reduction

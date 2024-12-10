@@ -11,7 +11,9 @@ from .tensor_strategies import tensors
 @pytest.mark.task4_3
 @given(tensors(shape=(1, 1, 4, 4)))
 def test_avg(t: Tensor) -> None:
+    # print("t",t)
     out = minitorch.avgpool2d(t, (2, 2))
+    # print("out", out)
     assert_close(
         out[0, 0, 0, 0], sum([t[0, 0, i, j] for i in range(2) for j in range(2)]) / 4.0
     )
