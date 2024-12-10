@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from typing import Callable, Optional
 
     from .tensor import Tensor
-    from .tensor_data import Index, Shape, Storage, Strides
+    from .tensor_data import Shape, Storage, Strides
 
 # TIP: Use `NUMBA_DISABLE_JIT=1 pytest tests/ -m task3_1` to run these tests without JIT.
 
@@ -30,6 +30,20 @@ Fn = TypeVar("Fn")
 
 
 def njit(fn: Fn, **kwargs: Any) -> Fn:
+    """Compiles a function for execution on a CPU using Numba's JIT support.
+
+    This function takes a Python function as input and compiles it for execution on a CPU using Numba's JIT support. The compiled function can then be executed on the CPU with improved performance.
+
+    Args:
+    ----
+        fn (Callable): The Python function to be compiled for CPU execution.
+        **kwargs: Additional keyword arguments to be passed to Numba's `njit` function.
+
+    Returns:
+    -------
+        Callable: The compiled CPU kernel function.
+
+    """
     return _njit(inline="always", **kwargs)(fn)  # type: ignore
 
 
@@ -168,7 +182,39 @@ def tensor_map(
         in_shape: Shape,
         in_strides: Strides,
     ) -> None:
-        raise NotImplementedError("Need to include this file from past assignment.")
+        """Applies a function to each element of a tensor.
+
+        This function maps a function `fn` to each element of the input tensor `in_storage` and stores the result in the output tensor `out`.
+
+        Args:
+        ----
+            out (Storage): The output tensor where the result of the mapping will be stored.
+            out_shape (Shape): The shape of the output tensor.
+            out_strides (Strides): The strides of the output tensor.
+            in_storage (Storage): The input tensor to be mapped.
+            in_shape (Shape): The shape of the input tensor.
+            in_strides (Strides): The strides of the input tensor.
+
+        """
+        # TODO: Implement for Task 3.1.
+        # raise NotImplementedError("Need to implement for Task 3.1")
+
+        if (
+            len(out_strides) != len(in_strides)
+            or (out_strides != in_strides).any()
+            or (out_shape != in_shape).any()
+        ):
+            for i in prange(len(out)):
+                out_index = np.empty(MAX_DIMS, np.int32)
+                in_index = np.empty(MAX_DIMS, np.int32)
+                to_index(i, out_shape, out_index)
+                broadcast_index(out_index, out_shape, in_shape, in_index)
+                o = index_to_position(out_index, out_strides)
+                j = index_to_position(in_index, in_strides)
+                out[o] = fn(in_storage[j])
+        else:
+            for i in prange(len(out)):
+                out[i] = fn(in_storage[i])
 
     return njit(_map, parallel=True)  # type: ignore
 
@@ -207,7 +253,47 @@ def tensor_zip(
         b_shape: Shape,
         b_strides: Strides,
     ) -> None:
-        raise NotImplementedError("Need to include this file from past assignment.")
+        """Applies a binary function to each element of two tensors and stores the result in a third tensor.
+
+        This function maps a binary function `fn` to each element of the input tensors `a_storage` and `b_storage` and stores the result in the output tensor `out`. The function supports broadcasting and parallel execution.
+
+        Args:
+        ----
+            out (Storage): The output tensor where the result of the zip operation will be stored.
+            out_shape (Shape): The shape of the output tensor.
+            out_strides (Strides): The strides of the output tensor.
+            a_storage (Storage): The first input tensor.
+            a_shape (Shape): The shape of the first input tensor.
+            a_strides (Strides): The strides of the first input tensor.
+            b_storage (Storage): The second input tensor.
+            b_shape (Shape): The shape of the second input tensor.
+            b_strides (Strides): The strides of the second input tensor.
+
+        """
+        # TODO: Implement for Task 3.1.
+        # raise NotImplementedError("Need to implement for Task 3.1")
+        if (
+            len(out_strides) != len(a_strides)
+            or len(out_strides) != len(b_strides)
+            or (out_strides != a_strides).any()
+            or (out_strides != b_strides).any()
+            or (out_shape != a_shape).any()
+            or (out_shape != b_shape).any()
+        ):
+            for i in prange(len(out)):
+                out_index = np.empty(MAX_DIMS, np.int32)
+                a_index = np.empty(MAX_DIMS, np.int32)
+                b_index = np.empty(MAX_DIMS, np.int32)
+                to_index(i, out_shape, out_index)
+                o = index_to_position(out_index, out_strides)
+                broadcast_index(out_index, out_shape, a_shape, a_index)
+                j = index_to_position(a_index, a_strides)
+                broadcast_index(out_index, out_shape, b_shape, b_index)
+                k = index_to_position(b_index, b_strides)
+                out[o] = fn(a_storage[j], b_storage[k])
+        else:
+            for i in prange(len(out)):
+                out[i] = fn(a_storage[i], b_storage[i])
 
     return njit(_zip, parallel=True)  # type: ignore
 
@@ -242,7 +328,39 @@ def tensor_reduce(
         a_strides: Strides,
         reduce_dim: int,
     ) -> None:
-        raise NotImplementedError("Need to include this file from past assignment.")
+        """NUMBA tensor reduce function for a specific dimension.
+        This function reduces a tensor along a specified dimension using a given reduction function.
+
+        Args:
+        ----
+            out (Storage): The output tensor where the result of the reduction will be stored.
+            out_shape (Shape): The shape of the output tensor.
+            out_strides (Strides): The strides of the output tensor.
+            a_storage (Storage): The input tensor to be reduced.
+            a_shape (Shape): The shape of the input tensor.
+            a_strides (Strides): The strides of the input tensor.
+            reduce_dim (int): The dimension along which to reduce the tensor.
+
+        Returns:
+        -------
+            None
+                This function modifies the `out` tensor in-place.
+
+        """
+        # TODO: Implement for Task 3.1.
+        #  raise NotImplementedError("Need to implement for Task 3.1")
+        for i in prange(len(out)):
+            out_index = np.empty(MAX_DIMS, np.int32)
+            reduce_size = a_shape[reduce_dim]
+            to_index(i, out_shape, out_index)
+            o = index_to_position(out_index, out_strides)
+            accum = out[o]
+            j = index_to_position(out_index, a_strides)
+            step = a_strides[reduce_dim]
+            for s in range(reduce_size):
+                accum = fn(accum, a_storage[j])
+                j += step
+            out[o] = accum
 
     return njit(_reduce, parallel=True)  # type: ignore
 
@@ -293,7 +411,26 @@ def _tensor_matrix_multiply(
     a_batch_stride = a_strides[0] if a_shape[0] > 1 else 0
     b_batch_stride = b_strides[0] if b_shape[0] > 1 else 0
 
-    raise NotImplementedError("Need to include this file from past assignment.")
+    # TODO: Implement for Task 3.2.
+    # raise NotImplementedError("Need to implement for Task 3.2")
+    assert a_shape[-1] == b_shape[-2], "inner dim has to be same"
+
+    for n in prange(out_shape[0]):
+        for i in range(out_shape[1]):  # Rows of a
+            for j in range(out_shape[2]):  # Columns of b
+                sum_result = 0
+                a_pos = n * a_batch_stride + i * a_strides[1]
+                b_pos = n * b_batch_stride + j * b_strides[2]
+
+                for _ in range(a_shape[-1]):  # Columns of a and rows of b
+                    sum_result += a_storage[a_pos] * b_storage[b_pos]
+                    a_pos += a_strides[2]
+                    b_pos += b_strides[1]
+
+                out_pos = (
+                    n * out_strides[0] + i * out_strides[1] + j * out_strides[2]
+                )  # Ba
+                out[out_pos] = sum_result
 
 
 tensor_matrix_multiply = njit(_tensor_matrix_multiply, parallel=True)
