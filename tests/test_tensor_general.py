@@ -249,6 +249,7 @@ if numba.cuda.is_available():
 
         for i in range(size):
             for j in range(size):
+                print(i, j)
                 assert_close(z[i, j], z2[i, j])
 
     @pytest.mark.task3_4
@@ -306,7 +307,7 @@ if numba.cuda.is_available():
 
 
 @given(data())
-@settings(max_examples=25)
+@settings(max_examples=26)
 @pytest.mark.parametrize("fn", two_arg)
 @pytest.mark.parametrize("backend", backend_tests)
 def test_two_grad_broadcast(
